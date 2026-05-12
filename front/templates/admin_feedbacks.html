@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Feedbacks - Sistema Helpdesk</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <h1>Painel Administrativo - Feedbacks</h1>
+        <nav>
+            <a href="/">← Voltar ao Sistema</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="feedbacks-section">
+            <h2>Feedbacks Recebidos</h2>
+            {% if feedbacks %}
+                <div class="feedbacks-list">
+                    {% for f in feedbacks %}
+                        <div class="feedback-card">
+                            <h3>Chamado: {{ chamados[f.chamado_id].titulo }}</h3>
+                            <p><strong>Status:</strong> {{ chamados[f.chamado_id].status }}</p>
+                            <p><strong>Rating:</strong> {{ f.rating }}/5 estrelas</p>
+                            <p><strong>Comentário:</strong> {{ f.comentario or "Sem comentário" }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="no-feedback">Nenhum feedback recebido ainda.</p>
+            {% endif %}
+        </section>
+    </main>
+
+    <footer>
+        <p>Sistema Helpdesk TCC</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Chamados Helpdesk</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <h1>Sistema de Chamados Helpdesk</h1>
+        <nav>
+            <a href="/admin/feedbacks">Painel Técnico</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="instructions">
+            <h2>Como Abrir um Chamado</h2>
+            <ol>
+                <li>Preencha o <strong>título</strong> com um resumo breve do problema.</li>
+                <li>Descreva detalhadamente o <strong>problema</strong> na área de descrição.</li>
+                <li>Clique em "Criar Chamado" para enviar.</li>
+                <li>Após o atendimento, você poderá avaliar o serviço com um feedback.</li>
+            </ol>
+        </section>
+
+        <section class="new-ticket">
+            <h2>Abrir Novo Chamado</h2>
+            <form method="post" action="/chamados" class="ticket-form">
+                <div class="form-group">
+                    <label for="titulo">Título do Chamado:</label>
+                    <input type="text" id="titulo" name="titulo" placeholder="Ex: Problema com login" required>
+                </div>
+                <div class="form-group">
+                    <label for="descricao">Descrição Detalhada:</label>
+                    <textarea id="descricao" name="descricao" placeholder="Descreva o problema em detalhes..." required></textarea>
+                </div>
+                <button type="submit" class="btn-submit">Criar Chamado</button>
+            </form>
+        </section>
+
+        <section class="tickets-list">
+            <h2>Seus Chamados</h2>
+            {% if chamados %}
+                <div class="tickets-container">
+                    {% for c in chamados %}
+                        <div class="ticket-card {{ 'closed' if c.status == 'fechado' else 'open' }}">
+                            <h3>{{ c.titulo }}</h3>
+                            <p class="status">Status: <span class="status-badge {{ c.status }}">{{ c.status|title }}</span></p>
+                            <p class="description">{{ c.descricao }}</p>
+
+                            {% if c.status != "fechado" %}
+                                <a href="/fechar/{{ c.id }}" class="btn-close">Marcar como Resolvido</a>
+                            {% else %}
+                                <a href="/feedback/{{ c.id }}" class="btn-view-feedback">Ver Meu Feedback</a>
+                                {% if not c.feedbacks %}
+                                    <div class="feedback-form">
+                                        <h4>Avalie o Atendimento</h4>
+                                        <form method="post" action="/feedback/{{ c.id }}">
+                                            <div class="form-group">
+                                                <label for="rating-{{ c.id }}">Nota (1-5):</label>
+                                                <input type="number" id="rating-{{ c.id }}" name="rating" min="1" max="5" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="comentario-{{ c.id }}">Comentário (opcional):</label>
+                                                <textarea id="comentario-{{ c.id }}" name="comentario" placeholder="Deixe seu comentário..."></textarea>
+                                            </div>
+                                            <button type="submit" class="btn-feedback">Enviar Feedback</button>
+                                        </form>
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="no-tickets">Nenhum chamado aberto ainda. Crie seu primeiro chamado acima!</p>
+            {% endif %}
+        </section>
+    </main>
+
+    <footer>
+        <p>Sistema Helpdesk TCC - Versão Simples</p>
+    </footer>
+</body>
+</html>

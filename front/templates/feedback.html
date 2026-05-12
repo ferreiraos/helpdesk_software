@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Feedback do Chamado</title>
+</head>
+<body>
+
+<h1>Feedback do Chamado: {{ chamado.titulo }}</h1>
+
+{% if feedbacks %}
+    <ul>
+    {% for f in feedbacks %}
+        <li>
+            Rating: {{ f.rating }}/5 <br>
+            Comentário: {{ f.comentario }}
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>Nenhum feedback ainda.</p>
+{% endif %}
+
+<a href="/">Voltar</a>
+
+</body>
+</html>
