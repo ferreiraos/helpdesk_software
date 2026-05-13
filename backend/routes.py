@@ -1,12 +1,17 @@
 from fastapi import APIRouter, Form, Request
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
+import os
 
 from database import SessionLocal
 from models import Chamado, Feedback
 
 router = APIRouter()
-templates = Jinja2Templates(directory="../front/templates")
+
+# Definir o caminho absoluto para os templates
+base_dir = os.path.dirname(os.path.abspath(__file__))
+templates_dir = os.path.join(os.path.dirname(base_dir), "front", "templates")
+templates = Jinja2Templates(directory=templates_dir)
 
 
 def get_db():
