@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helpdesk Local</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="panel left-panel">
+            <div class="panel-header">
+                <h2>Chamados</h2>
+                <p class="small">Lista e criação rápida</p>
+            </div>
+
+            <section class="card card-form">
+                <h3>Novo chamado</h3>
+                <form id="new-chamado-form">
+                    <label for="titulo">Título</label>
+                    <input id="titulo" name="titulo" type="text" required placeholder="Descreva o problema" />
+
+                    <label for="descricao">Descrição</label>
+                    <textarea id="descricao" name="descricao" rows="4" required placeholder="Explique o problema..."></textarea>
+
+                    <button type="submit" class="btn btn-primary">Abrir Chamado</button>
+                </form>
+            </section>
+
+            <section class="card card-list">
+                <h3>Meus Chamados</h3>
+                <div id="chamados-list" class="list"></div>
+            </section>
+        </aside>
+
+        <main class="panel center-panel">
+            <section class="card card-detail">
+                <div class="panel-header">
+                    <h2 id="detail-title">Selecione um chamado</h2>
+                    <p id="detail-status" class="tag"></p>
+                </div>
+
+                <div id="detail-content" class="detail-content">
+                    <p class="placeholder">Escolha um chamado no painel à esquerda para ver detalhes, mensagens e ações.</p>
+                </div>
+            </section>
+
+            <section class="card card-messages">
+                <h3>Mensagens</h3>
+                <div id="messages-list" class="messages"></div>
+                <form id="message-form" class="message-form">
+                    <textarea id="message-content" rows="3" placeholder="Escreva uma mensagem..." required></textarea>
+                    <button type="submit" class="btn btn-secondary">Enviar Mensagem</button>
+                </form>
+            </section>
+        </main>
+
+        <aside class="panel right-panel">
+            <section class="card card-status">
+                <h3>Status e ações</h3>
+                <div id="status-actions"></div>
+            </section>
+
+            <section class="card card-feedback">
+                <h3>Feedback</h3>
+                <div id="feedback-section"></div>
+            </section>
+
+            <section class="card card-history">
+                <h3>Histórico</h3>
+                <div id="history-list" class="history"></div>
+            </section>
+        </aside>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
