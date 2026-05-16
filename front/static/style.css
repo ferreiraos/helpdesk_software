@@ -1,0 +1,282 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #2d3a45;
+    background-color: #f4f6f8;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+.app-shell {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.app-header h1 {
+    font-size: 2rem;
+    color: #1f2937;
+}
+
+.app-header p {
+    color: #4b5563;
+    margin-top: 8px;
+}
+
+.alert {
+    min-width: 220px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    background-color: transparent;
+    color: #1f2937;
+    border: 1px solid transparent;
+    display: none;
+}
+
+.alert.success {
+    display: block;
+    background-color: #ecfdf5;
+    border-color: #10b981;
+    color: #065f46;
+}
+
+.alert.error {
+    display: block;
+    background-color: #fee2e2;
+    border-color: #ef4444;
+    color: #991b1b;
+}
+
+.layout-grid {
+    display: grid;
+    grid-template-columns: 320px minmax(420px, 1fr) 320px;
+    gap: 20px;
+}
+
+.panel {
+    background-color: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    padding: 20px;
+    min-height: 100px;
+}
+
+.panel-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.panel-header h2,
+.panel-header h3 {
+    font-size: 1.15rem;
+    color: #111827;
+}
+
+.panel-note {
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+.ticket-list,
+.message-list,
+.history-list,
+.feedback-body {
+    display: grid;
+    gap: 12px;
+}
+
+.ticket-item {
+    width: 100%;
+    text-align: left;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 16px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.ticket-item:hover,
+.ticket-item.active {
+    border-color: #3b82f6;
+    transform: translateY(-1px);
+}
+
+.ticket-item strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #111827;
+}
+
+.ticket-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.ticket-status.aberto {
+    background: #f59e0b;
+}
+
+.ticket-status.em-andamento {
+    background: #3b82f6;
+}
+
+.ticket-status.resolvido {
+    background: #10b981;
+}
+
+form {
+    display: grid;
+    gap: 14px;
+}
+
+label {
+    font-weight: 600;
+    color: #374151;
+}
+
+input[type="text"],
+textarea,
+select {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    padding: 12px 14px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input[type="text"]:focus,
+textarea:focus,
+select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+}
+
+textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+.btn {
+    border: none;
+    border-radius: 12px;
+    padding: 12px 18px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: filter 0.2s ease;
+}
+
+.btn-primary {
+    background: #2563eb;
+    color: white;
+}
+
+.btn-secondary {
+    background: #111827;
+    color: white;
+}
+
+.btn:hover {
+    filter: brightness(1.05);
+}
+
+.detail-card,
+.form-card {
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    padding: 20px;
+}
+
+.empty-state {
+    color: #6b7280;
+    font-style: italic;
+}
+
+.history-item,
+.message-item,
+.feedback-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 16px;
+}
+
+.message-item .message-meta,
+.history-item .history-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    color: #6b7280;
+}
+
+.feedback-card p {
+    margin-top: 8px;
+    color: #374151;
+}
+
+.app-footer {
+    margin-top: 24px;
+    text-align: center;
+    color: #6b7280;
+}
+
+code {
+    background: #f3f4f6;
+    color: #111827;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+
+@media (max-width: 1024px) {
+    .layout-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .app-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+@media (max-width: 640px) {
+    .app-shell {
+        padding: 16px;
+    }
+
+    .panel {
+        padding: 18px;
+    }
+}

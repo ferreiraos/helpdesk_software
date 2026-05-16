@@ -3,85 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Chamados Helpdesk</title>
+    <title>MMDesk</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <header>
-        <h1>Sistema de Chamados Helpdesk</h1>
-        <nav>
-            <a href="/admin/feedbacks">Painel Técnico</a>
-        </nav>
-    </header>
+    <div class="app-shell">
+        <header class="app-header">
+            <div>
+                <h1>MMdesk</h1>
+                <p>Crie e Gerencie seus chamados de forma simples e eficiente.</p>
+            </div>
+            <div id="alert-box" class="alert" aria-live="polite"></div>
+        </header>
 
-    <main>
-        <section class="instructions">
-            <h2>Como Abrir um Chamado</h2>
-            <ol>
-                <li>Preencha o <strong>título</strong> com um resumo breve do problema.</li>
-                <li>Descreva detalhadamente o <strong>problema</strong> na área de descrição.</li>
-                <li>Clique em "Criar Chamado" para enviar.</li>
-                <li>Após o atendimento, você poderá avaliar o serviço com um feedback.</li>
-            </ol>
-        </section>
-
-        <section class="new-ticket">
-            <h2>Abrir Novo Chamado</h2>
-            <form method="post" action="/chamados" class="ticket-form">
-                <div class="form-group">
-                    <label for="titulo">Título do Chamado:</label>
-                    <input type="text" id="titulo" name="titulo" placeholder="Ex: Problema com login" required>
+        <main class="layout-grid">
+            <aside class="panel panel-left">
+                <div class="panel-header">
+                    <h2>Chamados</h2>
+                    <span class="panel-note"><strong id="ticket-count">0</strong> chamados</span>
                 </div>
-                <div class="form-group">
-                    <label for="descricao">Descrição Detalhada:</label>
-                    <textarea id="descricao" name="descricao" placeholder="Descreva o problema em detalhes..." required></textarea>
+
+                <div id="ticket-list" class="ticket-list">
+                    <p class="empty-state">Carregando lista de chamados...</p>
                 </div>
-                <button type="submit" class="btn-submit">Criar Chamado</button>
-            </form>
-        </section>
 
-        <section class="tickets-list">
-            <h2>Seus Chamados</h2>
-            {% if chamados %}
-                <div class="tickets-container">
-                    {% for c in chamados %}
-                        <div class="ticket-card {{ 'closed' if c.status == 'fechado' else 'open' }}">
-                            <h3>{{ c.titulo }}</h3>
-                            <p class="status">Status: <span class="status-badge {{ c.status }}">{{ c.status|title }}</span></p>
-                            <p class="description">{{ c.descricao }}</p>
+                <section class="panel-block">
+                    <h3>Novo chamado</h3>
+                    <form id="create-ticket-form" class="form-card">
+                        <label for="ticket-title">Título</label>
+                        <input id="ticket-title" name="titulo" type="text" placeholder="Ex: Falha no acesso" required>
 
-                            {% if c.status != "fechado" %}
-                                <a href="/fechar/{{ c.id }}" class="btn-close">Marcar como Resolvido</a>
-                            {% else %}
-                                <a href="/feedback/{{ c.id }}" class="btn-view-feedback">Ver Meu Feedback</a>
-                                {% if not c.feedbacks %}
-                                    <div class="feedback-form">
-                                        <h4>Avalie o Atendimento</h4>
-                                        <form method="post" action="/feedback/{{ c.id }}">
-                                            <div class="form-group">
-                                                <label for="rating-{{ c.id }}">Nota (1-5):</label>
-                                                <input type="number" id="rating-{{ c.id }}" name="rating" min="1" max="5" required>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="comentario-{{ c.id }}">Comentário (opcional):</label>
-                                                <textarea id="comentario-{{ c.id }}" name="comentario" placeholder="Deixe seu comentário..."></textarea>
-                                            </div>
-                                            <button type="submit" class="btn-feedback">Enviar Feedback</button>
-                                        </form>
-                                    </div>
-                                {% endif %}
-                            {% endif %}
-                        </div>
-                    {% endfor %}
+                        <label for="ticket-desc">Descrição</label>
+                        <textarea id="ticket-desc" name="descricao" placeholder="Descreva o problema" required></textarea>
+
+                        <button type="submit" class="btn btn-primary">Criar chamado</button>
+                    </form>
+                </section>
+            </aside>
+
+            <section class="panel panel-center">
+                <div class="panel-header">
+                    <h2 id="details-title">Selecione um chamado</h2>
                 </div>
-            {% else %}
-                <p class="no-tickets">Nenhum chamado aberto ainda. Crie seu primeiro chamado acima!</p>
-            {% endif %}
-        </section>
-    </main>
 
-    <footer>
-        <p>Sistema Helpdesk TCC - Versão Simples</p>
-    </footer>
+                <div id="details-body" class="detail-card">
+                    <p class="empty-state">Clique em um chamado para ver os detalhes, mensagens e feedback.</p>
+                </div>
+
+                <section class="panel-block">
+                    <div class="panel-block-header">
+                        <h3>Mensagens</h3>
+                    </div>
+                    <div id="message-list" class="message-list">
+                        <p class="empty-state">Mensagens do chamado aparecerão aqui.</p>
+                    </div>
+                    <form id="message-form" class="form-card">
+                        <label for="message-content">Nova mensagem</label>
+                        <textarea id="message-content" placeholder="Escreva uma mensagem"></textarea>
+                        <button type="submit" class="btn btn-secondary">Enviar mensagem</button>
+                    </form>
+                </section>
+            </section>
+
+            <aside class="panel panel-right">
+                <section class="panel-block">
+                    <h3>Status</h3>
+                    <select id="status-select">
+                        <option value="aberto">Aberto</option>
+                        <option value="em andamento">Em andamento</option>
+                        <option value="resolvido">Resolvido</option>
+                    </select>
+                </section>
+
+                <section class="panel-block">
+                    <h3>Histórico</h3>
+                    <div id="history-body" class="history-list">
+                        <p class="empty-state">Nenhuma alteração registrada ainda.</p>
+                    </div>
+                </section>
+
+                <section class="panel-block">
+                    <h3>Feedback</h3>
+                    <div id="feedback-body" class="feedback-body">
+                        <p class="empty-state">Feedback será exibido quando o chamado for resolvido.</p>
+                    </div>
+                    <form id="feedback-form" class="form-card">
+                        <label for="feedback-rating">Nota</label>
+                        <select id="feedback-rating">
+                            <option value="5">5 estrelas</option>
+                            <option value="4">4 estrelas</option>
+                            <option value="3">3 estrelas</option>
+                            <option value="2">2 estrelas</option>
+                            <option value="1">1 estrela</option>
+                        </select>
+
+                        <label for="feedback-comentario">Comentário</label>
+                        <textarea id="feedback-comentario" placeholder="Escreva um comentário opcional"></textarea>
+
+                        <button type="submit" class="btn btn-primary">Enviar feedback</button>
+                    </form>
+                </section>
+            </aside>
+        </main>
+
+        <footer class="app-footer">
+            <p>Use <code>python main.py</code> ou <code>uvicorn main:app --reload</code> para iniciar o sistema.</p>
+        </footer>
+    </div>
+
+    <script src="/static/app.js"></script>
 </body>
 </html>

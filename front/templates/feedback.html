@@ -1,26 +1,46 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feedback do Chamado</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+    <header>
+        <h1>Feedback do Chamado</h1>
+        <nav>
+            <a href="/">Voltar ao Painel</a>
+        </nav>
+    </header>
 
-<h1>Feedback do Chamado: {{ chamado.titulo }}</h1>
+    <main>
+        <section>
+            {% if chamado %}
+                <h2>{{ chamado.titulo }}</h2>
+                <p><strong>Status:</strong> {{ chamado.status|title }}</p>
+                <p class="description">{{ chamado.descricao }}</p>
 
-{% if feedbacks %}
-    <ul>
-    {% for f in feedbacks %}
-        <li>
-            Rating: {{ f.rating }}/5 <br>
-            Comentário: {{ f.comentario }}
-        </li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>Nenhum feedback ainda.</p>
-{% endif %}
+                <div class="feedbacks-list">
+                    {% if feedbacks %}
+                        {% for f in feedbacks %}
+                            <div class="feedback-card">
+                                <p><strong>Rating:</strong> {{ f.rating }}/5</p>
+                                <p><strong>Comentário:</strong> {{ f.comentario or "Sem comentário" }}</p>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="no-feedback">Nenhum feedback registrado para este chamado.</p>
+                    {% endif %}
+                </div>
+            {% else %}
+                <p class="no-feedback">Chamado não encontrado.</p>
+            {% endif %}
+        </section>
+    </main>
 
-<a href="/">Voltar</a>
-
+    <footer>
+        <p>Sistema Helpdesk TCC</p>
+    </footer>
 </body>
 </html>

@@ -1,107 +1,73 @@
-from fastapi import APIRouter, Form, Request
-from fastapi.responses import RedirectResponse
-from fastapi.templating import Jinja2Templates
+from typing import List
 
-from database import SessionLocal
-from models import Chamado, Feedback
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
 
-router = APIRouter()
-templates = Jinja2Templates(directory="../front/templates")
+from backend.database import get_db
+from backend.schemas import (
+    FeedbackCreate,
+    FeedbackRead,
+    MessageCreate,
+    MessageRead,
+    StatusUpdate,
+    TicketCreate,
+    TicketDetail,
+    TicketSummary,
+)
+from backend.services import (
+    add_feedback,
+    add_message,
+    create_ticket,
+    get_all_tickets,
+    get_ticket,
+    update_ticket_status,
+)
 
-
-def get_db():
-    return SessionLocal()
-
-
-@router.get("/")
-def home(request: Request):
-    db = get_db()
-    chamados = db.query(Chamado).all()
-
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "chamados": chamados
-    })
-
-
-@router.post("/chamados")
-def criar_chamado(
-    titulo: str = Form(...),
-    descricao: str = Form(...)
-):
-    db = get_db()
-
-    chamado = Chamado(
-        titulo=titulo,
-        descricao=descricao,
-        status="aberto"
-    )
-
-    db.add(chamado)
-    db.commit()
-
-    return RedirectResponse("/", status_code=303)
+router = APIRouter(prefix="/api")
 
 
-@router.get("/fechar/{id}")
-def fechar_chamado(id: int):
-    db = get_db()
-
-    chamado = db.query(Chamado).filter(Chamado.id == id).first()
-    chamado.status = "fechado"
-
-    db.commit()
-
-    return RedirectResponse("/", status_code=303)
+@router.get("/chamados", response_model=List[TicketSummary])
+def list_tickets(db: Session = Depends(get_db)):
+    tickets = get_all_tickets(db)
+    return [TicketSummary.from_orm(ticket) for ticket in tickets]
 
 
-@router.post("/feedback/{id}")
-def adicionar_feedback(
-    id: int,
-    rating: int = Form(...),
-    comentario: str = Form(...)
-):
-    db = get_db()
-
-    chamado = db.query(Chamado).filter(Chamado.id == id).first()
-    if not chamado or chamado.status != "fechado":
-        return RedirectResponse("/", status_code=303)  # ou erro
-
-    feedback = Feedback(
-        rating=rating,
-        comentario=comentario,
-        chamado_id=id
-    )
-
-    db.add(feedback)
-    db.commit()
-
-    return RedirectResponse("/", status_code=303)
+@router.get("/chamados/{ticket_id}", response_model=TicketDetail)
+def get_ticket_detail(ticket_id: int, db: Session = Depends(get_db)):
+    ticket = get_ticket(db, ticket_id)
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Chamado não encontrado")
+    return TicketDetail.from_orm(ticket)
 
 
-@router.get("/feedback/{id}")
-def ver_feedback(id: int, request: Request):
-    db = get_db()
-
-    chamado = db.query(Chamado).filter(Chamado.id == id).first()
-    feedbacks = chamado.feedbacks if chamado else []
-
-    return templates.TemplateResponse("feedback.html", {
-        "request": request,
-        "chamado": chamado,
-        "feedbacks": feedbacks
-    })
+@router.post("/chamados", response_model=TicketSummary, status_code=201)
+def create_new_ticket(ticket: TicketCreate, db: Session = Depends(get_db)):
+    created = create_ticket(db, ticket)
+    return TicketSummary.from_orm(created)
 
 
-@router.get("/admin/feedbacks")
-def admin_feedbacks(request: Request):
-    db = get_db()
+@router.patch("/chamados/{ticket_id}/status", response_model=TicketDetail)
+def change_ticket_status(ticket_id: int, status_update: StatusUpdate, db: Session = Depends(get_db)):
+    try:
+        updated = update_ticket_status(db, ticket_id, status_update)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    return TicketDetail.from_orm(updated)
 
-    feedbacks = db.query(Feedback).all()
-    chamados = {f.chamado_id: f.chamado for f in feedbacks}
 
-    return templates.TemplateResponse("admin_feedbacks.html", {
-        "request": request,
-        "feedbacks": feedbacks,
-        "chamados": chamados
-    })
+@router.post("/chamados/{ticket_id}/messages", response_model=MessageRead)
+def post_message(ticket_id: int, message: MessageCreate, db: Session = Depends(get_db)):
+    try:
+        created = add_message(db, ticket_id, message)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+    return MessageRead.from_orm(created)
+
+
+@router.post("/chamados/{ticket_id}/feedback", response_model=FeedbackRead)
+def post_feedback(ticket_id: int, feedback: FeedbackCreate, db: Session = Depends(get_db)):
+    try:
+        created = add_feedback(db, ticket_id, feedback)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    return FeedbackRead.from_orm(created)

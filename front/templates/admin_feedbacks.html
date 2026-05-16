@@ -21,8 +21,8 @@
                 <div class="feedbacks-list">
                     {% for f in feedbacks %}
                         <div class="feedback-card">
-                            <h3>Chamado: {{ chamados[f.chamado_id].titulo }}</h3>
-                            <p><strong>Status:</strong> {{ chamados[f.chamado_id].status }}</p>
+                            <h3>Chamado: {{ f.chamado.titulo }}</h3>
+                            <p><strong>Status:</strong> {{ f.chamado.status }}</p>
                             <p><strong>Rating:</strong> {{ f.rating }}/5 estrelas</p>
                             <p><strong>Comentário:</strong> {{ f.comentario or "Sem comentário" }}</p>
                         </div>
