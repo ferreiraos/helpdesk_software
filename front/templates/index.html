@@ -3,15 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MMDesk</title>
+    <title>MMDesk | Atendimento Premium</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <div class="app-shell">
         <header class="app-header">
             <div>
+                <span class="eyebrow">Painel de atendimento</span>
                 <h1>MMdesk</h1>
-                <p>Crie e Gerencie seus chamados de forma simples e eficiente.</p>
+                <p>Organize os chamados com uma experiência mais fluida, moderna e profissional.</p>
+            </div>
+            <div class="header-metrics">
+                <div class="metric-card">
+                    <span class="metric-label">Chamados</span>
+                    <strong id="ticket-count">0</strong>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-label">Status</span>
+                    <strong>Em tempo real</strong>
+                </div>
             </div>
             <div id="alert-box" class="alert" aria-live="polite"></div>
         </header>
@@ -20,7 +31,7 @@
             <aside class="panel panel-left">
                 <div class="panel-header">
                     <h2>Chamados</h2>
-                    <span class="panel-note"><strong id="ticket-count">0</strong> chamados</span>
+                    <span class="panel-note">Fila de atendimento</span>
                 </div>
 
                 <div id="ticket-list" class="ticket-list">

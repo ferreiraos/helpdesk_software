@@ -6,41 +6,42 @@
     <title>Feedback do Chamado</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body>
-    <header>
-        <h1>Feedback do Chamado</h1>
-        <nav>
-            <a href="/">Voltar ao Painel</a>
-        </nav>
-    </header>
+<body class="page-body">
+    <div class="page-shell">
+        <header class="page-header">
+            <div>
+                <h1>Feedback do Chamado</h1>
+                <p>Acompanhe a percepção do cliente sobre o atendimento.</p>
+            </div>
+            <nav>
+                <a class="nav-link" href="/">← Voltar ao painel</a>
+            </nav>
+        </header>
 
-    <main>
-        <section>
-            {% if chamado %}
-                <h2>{{ chamado.titulo }}</h2>
-                <p><strong>Status:</strong> {{ chamado.status|title }}</p>
-                <p class="description">{{ chamado.descricao }}</p>
+        <main class="page-card">
+            <section class="page-section">
+                {% if chamado %}
+                    <h2>{{ chamado.titulo }}</h2>
+                    <p><strong>Status:</strong> {{ chamado.status|title }}</p>
+                    <p class="description">{{ chamado.descricao }}</p>
 
-                <div class="feedbacks-list">
-                    {% if feedbacks %}
-                        {% for f in feedbacks %}
-                            <div class="feedback-card">
-                                <p><strong>Rating:</strong> {{ f.rating }}/5</p>
-                                <p><strong>Comentário:</strong> {{ f.comentario or "Sem comentário" }}</p>
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        <p class="no-feedback">Nenhum feedback registrado para este chamado.</p>
-                    {% endif %}
-                </div>
-            {% else %}
-                <p class="no-feedback">Chamado não encontrado.</p>
-            {% endif %}
-        </section>
-    </main>
-
-    <footer>
-        <p>Sistema Helpdesk TCC</p>
-    </footer>
+                    <div class="feedbacks-list">
+                        {% if feedbacks %}
+                            {% for f in feedbacks %}
+                                <div class="feedback-card">
+                                    <p><strong>Nota:</strong> {{ f.rating }}/5</p>
+                                    <p><strong>Comentário:</strong> {{ f.comentario or "Sem comentário" }}</p>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="no-feedback">Nenhum feedback registrado para este chamado.</p>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <p class="no-feedback">Chamado não encontrado.</p>
+                {% endif %}
+            </section>
+        </main>
+    </div>
 </body>
 </html>

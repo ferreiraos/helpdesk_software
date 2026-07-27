@@ -53,6 +53,10 @@ function showAlert(message, type = 'success') {
     elements.alertBox.textContent = message;
     elements.alertBox.className = `alert ${type}`;
     elements.alertBox.style.display = 'block';
+    elements.alertBox.animate([
+        { transform: 'translateY(-4px)', opacity: 0 },
+        { transform: 'translateY(0)', opacity: 1 }
+    ], { duration: 220, fill: 'forwards' });
     setTimeout(() => {
         elements.alertBox.style.display = 'none';
     }, 3500);
@@ -75,7 +79,10 @@ function renderTicketList(tickets) {
         return `
             <button class="ticket-item ${active}" data-id="${ticket.id}">
                 <span class="ticket-title">${ticket.titulo}</span>
-                <span class="ticket-status ${ticket.status.replace(' ', '-')}">${ticket.status}</span>
+                <span class="ticket-meta">
+                    <span>${new Date(ticket.updated_at).toLocaleDateString('pt-BR')}</span>
+                    <span class="ticket-status ${ticket.status.replace(' ', '-')}">${ticket.status}</span>
+                </span>
             </button>
         `;
     }).join('');

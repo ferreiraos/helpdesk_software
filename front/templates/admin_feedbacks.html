@@ -6,36 +6,37 @@
     <title>Painel de Feedbacks - Sistema Helpdesk</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body>
-    <header>
-        <h1>Painel Administrativo - Feedbacks</h1>
-        <nav>
-            <a href="/">← Voltar ao Sistema</a>
-        </nav>
-    </header>
+<body class="page-body">
+    <div class="page-shell">
+        <header class="page-header">
+            <div>
+                <h1>Painel Administrativo - Feedbacks</h1>
+                <p>Visualize os registros de satisfação recebidos pelos clientes.</p>
+            </div>
+            <nav>
+                <a class="nav-link" href="/">← Voltar ao sistema</a>
+            </nav>
+        </header>
 
-    <main>
-        <section class="feedbacks-section">
-            <h2>Feedbacks Recebidos</h2>
-            {% if feedbacks %}
-                <div class="feedbacks-list">
-                    {% for f in feedbacks %}
-                        <div class="feedback-card">
-                            <h3>Chamado: {{ f.chamado.titulo }}</h3>
-                            <p><strong>Status:</strong> {{ f.chamado.status }}</p>
-                            <p><strong>Rating:</strong> {{ f.rating }}/5 estrelas</p>
-                            <p><strong>Comentário:</strong> {{ f.comentario or "Sem comentário" }}</p>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="no-feedback">Nenhum feedback recebido ainda.</p>
-            {% endif %}
-        </section>
-    </main>
-
-    <footer>
-        <p>Sistema Helpdesk TCC</p>
-    </footer>
+        <main class="page-card">
+            <section class="page-section">
+                <h2>Feedbacks recebidos</h2>
+                {% if feedbacks %}
+                    <div class="feedbacks-list">
+                        {% for f in feedbacks %}
+                            <div class="feedback-card">
+                                <h3>Chamado: {{ f.chamado.titulo }}</h3>
+                                <p><strong>Status:</strong> {{ f.chamado.status }}</p>
+                                <p><strong>Nota:</strong> {{ f.rating }}/5 estrelas</p>
+                                <p><strong>Comentário:</strong> {{ f.comentario or "Sem comentário" }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="no-feedback">Nenhum feedback recebido ainda.</p>
+                {% endif %}
+            </section>
+        </main>
+    </div>
 </body>
 </html>
