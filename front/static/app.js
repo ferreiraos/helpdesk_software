@@ -32,6 +32,7 @@ const state = {
 const elements = {
     ticketList: document.getElementById('ticket-list'),
     ticketCount: document.getElementById('ticket-count'),
+    themeToggle: document.getElementById('theme-toggle'),
     detailsTitle: document.getElementById('details-title'),
     detailsBody: document.getElementById('details-body'),
     statusSelect: document.getElementById('status-select'),
@@ -48,6 +49,37 @@ const elements = {
     feedbackComentario: document.getElementById('feedback-comentario'),
     alertBox: document.getElementById('alert-box'),
 };
+
+function applyTheme(theme) {
+    document.body.dataset.theme = theme;
+    document.body.classList.add('theme-transitioning');
+    localStorage.setItem('helpdesk-theme', theme);
+
+    window.clearTimeout(window.__themeTransitionTimer);
+    window.__themeTransitionTimer = window.setTimeout(() => {
+        document.body.classList.remove('theme-transitioning');
+    }, 450);
+
+    if (elements.themeToggle) {
+        const isDark = theme === 'dark';
+        elements.themeToggle.setAttribute('aria-pressed', String(isDark));
+        elements.themeToggle.querySelector('.theme-toggle-icon').textContent = isDark ? '☀️' : '🌙';
+        elements.themeToggle.querySelector('.theme-toggle-label').textContent = isDark ? 'Tema claro' : 'Tema escuro';
+    }
+}
+
+function initializeTheme() {
+    const savedTheme = localStorage.getItem('helpdesk-theme');
+    const preferredTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    applyTheme(savedTheme || preferredTheme);
+
+    if (elements.themeToggle) {
+        elements.themeToggle.addEventListener('click', () => {
+            const nextTheme = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
+            applyTheme(nextTheme);
+        });
+    }
+}
 
 function showAlert(message, type = 'success') {
     elements.alertBox.textContent = message;
@@ -254,6 +286,7 @@ function setupEventHandlers() {
 }
 
 function initialize() {
+    initializeTheme();
     setupEventHandlers();
     clearDetailSection();
     refreshData();

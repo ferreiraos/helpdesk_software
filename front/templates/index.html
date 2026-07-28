@@ -14,14 +14,20 @@
                 <h1>MMdesk</h1>
                 <p>Organize os chamados com uma experiência mais fluida, moderna e profissional.</p>
             </div>
-            <div class="header-metrics">
-                <div class="metric-card">
-                    <span class="metric-label">Chamados</span>
-                    <strong id="ticket-count">0</strong>
-                </div>
-                <div class="metric-card">
-                    <span class="metric-label">Status</span>
-                    <strong>Em tempo real</strong>
+            <div class="header-actions">
+                <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false" title="Alternar para tema escuro ou claro">
+                    <span class="theme-toggle-icon">🌙</span>
+                    <span class="theme-toggle-label">Tema escuro</span>
+                </button>
+                <div class="header-metrics">
+                    <div class="metric-card">
+                        <span class="metric-label">Chamados</span>
+                        <strong id="ticket-count">0</strong>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Status</span>
+                        <strong>Em tempo real</strong>
+                    </div>
                 </div>
             </div>
             <div id="alert-box" class="alert" aria-live="polite"></div>
