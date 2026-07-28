@@ -56,6 +56,7 @@ class TicketSummary(BaseModel):
     titulo: str
     status: str
     created_at: datetime
+    updated_at: datetime
     has_feedback: bool = False
 
     model_config = ConfigDict(from_attributes=True)

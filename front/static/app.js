@@ -71,16 +71,31 @@ function clearDetailSection() {
     elements.feedbackBody.innerHTML = '<p class="empty-state">Feedback aparece aqui quando o chamado for resolvido.</p>';
 }
 
+function formatDate(value) {
+    if (!value) return 'Sem data';
+    const date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date.getTime())) return 'Sem data';
+    return date.toLocaleDateString('pt-BR');
+}
+
+function formatDateTime(value) {
+    if (!value) return 'Sem data';
+    const date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date.getTime())) return 'Sem data';
+    return date.toLocaleString('pt-BR');
+}
+
 function renderTicketList(tickets) {
     state.tickets = tickets;
     elements.ticketCount.textContent = tickets.length;
     elements.ticketList.innerHTML = tickets.map(ticket => {
         const active = ticket.id === state.selectedTicketId ? 'active' : '';
+        const ticketDate = ticket.updated_at || ticket.created_at;
         return `
             <button class="ticket-item ${active}" data-id="${ticket.id}">
                 <span class="ticket-title">${ticket.titulo}</span>
                 <span class="ticket-meta">
-                    <span>${new Date(ticket.updated_at).toLocaleDateString('pt-BR')}</span>
+                    <span>${formatDate(ticketDate)}</span>
                     <span class="ticket-status ${ticket.status.replace(' ', '-')}">${ticket.status}</span>
                 </span>
             </button>
@@ -100,8 +115,8 @@ function renderTicketDetails(ticket) {
     elements.detailsBody.innerHTML = `
         <div class="ticket-meta">
             <span>Status: <strong>${ticket.status}</strong></span>
-            <span>Criado em: ${new Date(ticket.created_at).toLocaleString()}</span>
-            <span>Atualizado em: ${new Date(ticket.updated_at).toLocaleString()}</span>
+            <span>Criado em: ${formatDateTime(ticket.created_at)}</span>
+            <span>Atualizado em: ${formatDateTime(ticket.updated_at)}</span>
         </div>
         <p class="ticket-description">${ticket.descricao}</p>
     `;
@@ -110,7 +125,7 @@ function renderTicketDetails(ticket) {
     elements.historyBody.innerHTML = ticket.history.length
         ? ticket.history.map(entry => `
             <div class="history-item">
-                <strong>${new Date(entry.created_at).toLocaleString()}</strong>
+                <strong>${formatDateTime(entry.created_at)}</strong>
                 <p>${entry.note || `${entry.previous_status} → ${entry.new_status}`}</p>
             </div>
         `).join('')
@@ -121,7 +136,7 @@ function renderTicketDetails(ticket) {
             <div class="message-item">
                 <div class="message-meta">
                     <span>${message.author}</span>
-                    <span>${new Date(message.created_at).toLocaleString()}</span>
+                    <span>${formatDateTime(message.created_at)}</span>
                 </div>
                 <p>${message.content}</p>
             </div>
