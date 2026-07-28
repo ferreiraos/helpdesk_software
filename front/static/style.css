@@ -293,6 +293,21 @@ a {
     box-shadow: 0 24px 48px rgba(12, 24, 40, 0.14);
 }
 
+.ticket-item.is-new {
+    animation: ticketPulse 0.7s ease;
+}
+
+.ticket-item.is-updating {
+    animation: ticketGlow 0.8s ease;
+}
+
+.detail-card.is-updating,
+.form-card.is-updating,
+.message-item.is-updating,
+.history-item.is-updating {
+    animation: contentPop 0.65s ease;
+}
+
 .panel::before {
     content: '';
     position: absolute;
@@ -525,6 +540,46 @@ textarea {
     color: var(--text);
 }
 
+.rating-label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: var(--text);
+    text-align: left;
+}
+
+.star-rating {
+    display: inline-flex;
+    flex-direction: row-reverse;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 10px;
+    width: fit-content;
+    align-self: flex-start;
+}
+
+.star-rating input {
+    display: none;
+}
+
+.star-rating .star {
+    font-size: 1.7rem;
+    line-height: 1;
+    color: rgba(148, 163, 184, 0.6);
+    cursor: pointer;
+    transition: transform 0.2s ease, color 0.2s ease, text-shadow 0.2s ease;
+    user-select: none;
+}
+
+.star-rating .star:hover,
+.star-rating .star:hover ~ .star,
+.star-rating input:checked ~ .star {
+    color: #f59e0b;
+    transform: scale(1.08);
+    text-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
+}
+
 .app-footer {
     margin-top: 24px;
     text-align: center;
@@ -632,6 +687,23 @@ code {
 @keyframes themeSurface {
     0% { transform: translateY(4px) scale(0.985); opacity: 0.94; filter: saturate(0.9); }
     100% { transform: translateY(0) scale(1); opacity: 1; filter: saturate(1); }
+}
+
+@keyframes ticketPulse {
+    0% { transform: translateY(6px) scale(0.98); box-shadow: 0 0 0 rgba(37, 99, 235, 0); }
+    50% { transform: translateY(-2px) scale(1.01); box-shadow: 0 14px 36px rgba(37, 99, 235, 0.18); }
+    100% { transform: translateY(0) scale(1); box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04); }
+}
+
+@keyframes ticketGlow {
+    0% { border-color: rgba(37, 99, 235, 0.4); transform: scale(0.99); }
+    50% { border-color: rgba(37, 99, 235, 0.9); transform: scale(1.01); }
+    100% { border-color: var(--blue); transform: scale(1); }
+}
+
+@keyframes contentPop {
+    0% { transform: translateY(6px); opacity: 0.8; }
+    100% { transform: translateY(0); opacity: 1; }
 }
 
 body.theme-transitioning .panel,

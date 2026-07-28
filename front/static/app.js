@@ -117,14 +117,23 @@ function formatDateTime(value) {
     return date.toLocaleString('pt-BR');
 }
 
+function animateElement(selector, className) {
+    const target = document.querySelector(selector);
+    if (!target) return;
+    target.classList.remove(className);
+    void target.offsetWidth;
+    target.classList.add(className);
+}
+
 function renderTicketList(tickets) {
     state.tickets = tickets;
     elements.ticketCount.textContent = tickets.length;
     elements.ticketList.innerHTML = tickets.map(ticket => {
         const active = ticket.id === state.selectedTicketId ? 'active' : '';
         const ticketDate = ticket.updated_at || ticket.created_at;
+        const isNew = !state.tickets.some(existing => existing.id === ticket.id) && ticket.id;
         return `
-            <button class="ticket-item ${active}" data-id="${ticket.id}">
+            <button class="ticket-item ${active} ${isNew ? 'is-new' : ''}" data-id="${ticket.id}">
                 <span class="ticket-title">${ticket.titulo}</span>
                 <span class="ticket-meta">
                     <span>${formatDate(ticketDate)}</span>
@@ -144,6 +153,7 @@ function renderTicketList(tickets) {
 function renderTicketDetails(ticket) {
     state.ticketDetail = ticket;
     elements.detailsTitle.textContent = ticket.titulo;
+    elements.detailsBody.classList.add('is-updating');
     elements.detailsBody.innerHTML = `
         <div class="ticket-meta">
             <span>Status: <strong>${ticket.status}</strong></span>
@@ -156,7 +166,7 @@ function renderTicketDetails(ticket) {
     elements.statusSelect.value = ticket.status;
     elements.historyBody.innerHTML = ticket.history.length
         ? ticket.history.map(entry => `
-            <div class="history-item">
+            <div class="history-item is-updating">
                 <strong>${formatDateTime(entry.created_at)}</strong>
                 <p>${entry.note || `${entry.previous_status} → ${entry.new_status}`}</p>
             </div>
@@ -165,7 +175,7 @@ function renderTicketDetails(ticket) {
 
     elements.messageList.innerHTML = ticket.messages.length
         ? ticket.messages.map(message => `
-            <div class="message-item">
+            <div class="message-item is-updating">
                 <div class="message-meta">
                     <span>${message.author}</span>
                     <span>${formatDateTime(message.created_at)}</span>
@@ -225,6 +235,7 @@ function setupEventHandlers() {
             .then(() => {
                 elements.ticketTitleInput.value = '';
                 elements.ticketDescInput.value = '';
+                elements.createForm.classList.add('is-updating');
                 refreshData();
                 showAlert('Chamado criado com sucesso.');
             })
@@ -235,6 +246,7 @@ function setupEventHandlers() {
         if (!state.selectedTicketId) return;
         api.updateStatus(state.selectedTicketId, elements.statusSelect.value)
             .then(ticket => {
+                elements.statusSelect.classList.add('is-updating');
                 renderTicketDetails(ticket);
                 refreshData();
                 showAlert('Status atualizado com sucesso.');
@@ -258,6 +270,7 @@ function setupEventHandlers() {
         api.addMessage(state.selectedTicketId, payload)
             .then(() => {
                 elements.messageContent.value = '';
+                elements.messageForm.classList.add('is-updating');
                 selectTicket(state.selectedTicketId);
                 showAlert('Mensagem adicionada.');
             })
@@ -268,15 +281,18 @@ function setupEventHandlers() {
         event.preventDefault();
         if (!state.selectedTicketId) return;
 
+        const selectedRating = document.querySelector('input[name="feedback-rating"]:checked');
         const payload = {
-            rating: Number(elements.feedbackRating.value),
+            rating: Number(selectedRating?.value || 5),
             comentario: elements.feedbackComentario.value.trim(),
         };
 
         api.addFeedback(state.selectedTicketId, payload)
             .then(() => {
-                elements.feedbackRating.value = '5';
+                const defaultRating = document.getElementById('rating-5');
+                if (defaultRating) defaultRating.checked = true;
                 elements.feedbackComentario.value = '';
+                elements.feedbackForm.classList.add('is-updating');
                 selectTicket(state.selectedTicketId);
                 refreshData();
                 showAlert('Feedback enviado. Obrigado!');
