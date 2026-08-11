@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import Column, Date, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from backend.database import Base
@@ -47,6 +47,18 @@ class Feedback(Base):
     chamado_id = Column(Integer, ForeignKey("chamados.id"), nullable=False)
 
     chamado = relationship("Chamado", back_populates="feedback")
+
+
+class Usuario(Base):
+    __tablename__ = "usuarios"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String(80), unique=True, nullable=False, index=True)
+    password_hash = Column(String(256), nullable=False)
+    full_name = Column(String(200), nullable=False)
+    birth_date = Column(Date, nullable=False)
+    department = Column(String(100), nullable=True)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
 
 
 class StatusHistory(Base):

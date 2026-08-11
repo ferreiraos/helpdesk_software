@@ -1,4 +1,20 @@
 const api = {
+    login: data => fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    }).then(res => {
+        if (!res.ok) throw res;
+        return res.json();
+    }),
+    register: data => fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    }).then(res => {
+        if (!res.ok) throw res;
+        return res.json();
+    }),
     listTickets: () => fetch('/api/chamados').then(res => res.json()),
     getTicket: id => fetch(`/api/chamados/${id}`).then(res => res.json()),
     createTicket: data => fetch('/api/chamados', {
@@ -27,9 +43,27 @@ const state = {
     selectedTicketId: null,
     tickets: [],
     ticketDetail: null,
+    user: null,
 };
 
 const elements = {
+    authShell: document.getElementById('auth-shell'),
+    authAlert: document.getElementById('auth-alert'),
+    authThemeToggle: document.getElementById('theme-toggle-auth'),
+    loginForm: document.getElementById('login-form'),
+    loginUsername: document.getElementById('login-username'),
+    loginPassword: document.getElementById('login-password'),
+    registerForm: document.getElementById('register-form'),
+    registerUsername: document.getElementById('register-username'),
+    registerPassword: document.getElementById('register-password'),
+    registerPasswordConfirm: document.getElementById('register-password-confirm'),
+    registerFullName: document.getElementById('register-full-name'),
+    registerBirthDate: document.getElementById('register-birth-date'),
+    registerDepartment: document.getElementById('register-department'),
+    userPanel: document.getElementById('user-panel'),
+    userGreeting: document.getElementById('user-greeting'),
+    logoutButton: document.getElementById('logout-button'),
+    appShell: document.getElementById('app-shell'),
     ticketList: document.getElementById('ticket-list'),
     ticketCount: document.getElementById('ticket-count'),
     themeToggle: document.getElementById('theme-toggle'),
@@ -60,12 +94,13 @@ function applyTheme(theme) {
         document.body.classList.remove('theme-transitioning');
     }, 450);
 
-    if (elements.themeToggle) {
+    const toggles = [elements.themeToggle, elements.authThemeToggle].filter(Boolean);
+    toggles.forEach(toggle => {
         const isDark = theme === 'dark';
-        elements.themeToggle.setAttribute('aria-pressed', String(isDark));
-        elements.themeToggle.querySelector('.theme-toggle-icon').textContent = isDark ? '☀️' : '🌙';
-        elements.themeToggle.querySelector('.theme-toggle-label').textContent = isDark ? 'Tema claro' : 'Tema escuro';
-    }
+        toggle.setAttribute('aria-pressed', String(isDark));
+        toggle.querySelector('.theme-toggle-icon').textContent = isDark ? '☀️' : '🌙';
+        toggle.querySelector('.theme-toggle-label').textContent = isDark ? 'Tema claro' : 'Tema escuro';
+    });
 }
 
 function initializeTheme() {
@@ -73,24 +108,27 @@ function initializeTheme() {
     const preferredTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     applyTheme(savedTheme || preferredTheme);
 
-    if (elements.themeToggle) {
-        elements.themeToggle.addEventListener('click', () => {
+    const toggles = [elements.themeToggle, elements.authThemeToggle].filter(Boolean);
+    toggles.forEach(toggle => {
+        toggle.addEventListener('click', () => {
             const nextTheme = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
             applyTheme(nextTheme);
         });
-    }
+    });
 }
 
-function showAlert(message, type = 'success') {
-    elements.alertBox.textContent = message;
-    elements.alertBox.className = `alert ${type}`;
-    elements.alertBox.style.display = 'block';
-    elements.alertBox.animate([
+function showAlert(message, type = 'success', target = 'main') {
+    const box = target === 'auth' ? elements.authAlert : elements.alertBox;
+    if (!box) return;
+    box.textContent = message;
+    box.className = `alert ${type}`;
+    box.style.display = 'block';
+    box.animate([
         { transform: 'translateY(-4px)', opacity: 0 },
         { transform: 'translateY(0)', opacity: 1 }
     ], { duration: 220, fill: 'forwards' });
     setTimeout(() => {
-        elements.alertBox.style.display = 'none';
+        box.style.display = 'none';
     }, 3500);
 }
 
@@ -101,6 +139,40 @@ function clearDetailSection() {
     elements.historyBody.innerHTML = '<p class="empty-state">Histórico de status será exibido aqui.</p>';
     elements.messageList.innerHTML = '<p class="empty-state">Selecione um chamado para acompanhar a conversa.</p>';
     elements.feedbackBody.innerHTML = '<p class="empty-state">Feedback aparece aqui quando o chamado for resolvido.</p>';
+}
+function setUser(user) {
+    state.user = user;
+    localStorage.setItem('helpdesk-user', JSON.stringify(user));
+    updateAuthUI();
+}
+
+function clearUser() {
+    state.user = null;
+    localStorage.removeItem('helpdesk-user');
+    updateAuthUI();
+}
+
+function updateAuthUI() {
+    const isLogged = Boolean(state.user && state.user.username);
+    elements.authShell.classList.toggle('hidden', isLogged);
+    elements.appShell.classList.toggle('hidden', !isLogged);
+    elements.userPanel.classList.toggle('hidden', !isLogged);
+    if (isLogged) {
+        elements.userGreeting.textContent = `Olá, ${state.user.full_name}`;
+    } else {
+        elements.userGreeting.textContent = '';
+    }
+}
+
+function loadStoredUser() {
+    const stored = localStorage.getItem('helpdesk-user');
+    if (stored) {
+        try {
+            state.user = JSON.parse(stored);
+        } catch (error) {
+            state.user = null;
+        }
+    }
 }
 
 function formatDate(value) {
@@ -220,6 +292,63 @@ function selectTicket(ticketId) {
 }
 
 function setupEventHandlers() {
+    elements.loginForm.addEventListener('submit', event => {
+        event.preventDefault();
+
+        const payload = {
+            username: elements.loginUsername.value.trim(),
+            password: elements.loginPassword.value,
+        };
+
+        api.login(payload)
+            .then(user => {
+                setUser(user);
+                showAlert('Login realizado com sucesso.', 'success', 'auth');
+                elements.loginForm.reset();
+                refreshData();
+            })
+            .catch(async response => {
+                const error = response?.status === 401 ? 'Usuário ou senha inválidos.' : 'Erro ao efetuar login.';
+                showAlert(error, 'error', 'auth');
+            });
+    });
+
+    elements.registerForm.addEventListener('submit', event => {
+        event.preventDefault();
+
+        if (elements.registerPassword.value !== elements.registerPasswordConfirm.value) {
+            return showAlert('As senhas não coincidem.', 'error', 'auth');
+        }
+
+        const payload = {
+            username: elements.registerUsername.value.trim(),
+            password: elements.registerPassword.value,
+            full_name: elements.registerFullName.value.trim(),
+            birth_date: elements.registerBirthDate.value,
+            department: elements.registerDepartment.value.trim(),
+        };
+
+        api.register(payload)
+            .then(user => {
+                setUser(user);
+                showAlert('Conta criada com sucesso.', 'success', 'auth');
+                elements.registerForm.reset();
+                refreshData();
+            })
+            .catch(async response => {
+                const error = response?.status === 400 ? 'Nome de usuário já existe ou dados inválidos.' : 'Erro ao registrar usuário.';
+                showAlert(error, 'error', 'auth');
+            });
+    });
+
+    elements.logoutButton.addEventListener('click', () => {
+        clearUser();
+        clearDetailSection();
+        state.selectedTicketId = null;
+        state.tickets = [];
+        elements.ticketList.innerHTML = '<p class="empty-state">Faça login para ver seus chamados.</p>';
+    });
+
     elements.createForm.addEventListener('submit', event => {
         event.preventDefault();
         const payload = {
@@ -259,7 +388,7 @@ function setupEventHandlers() {
         if (!state.selectedTicketId) return;
 
         const payload = {
-            author: 'Usuário',
+            author: state.user?.username || 'Usuário',
             content: elements.messageContent.value.trim(),
         };
 
@@ -303,9 +432,15 @@ function setupEventHandlers() {
 
 function initialize() {
     initializeTheme();
+    loadStoredUser();
+    updateAuthUI();
     setupEventHandlers();
     clearDetailSection();
-    refreshData();
+    if (state.user) {
+        refreshData();
+    } else {
+        elements.ticketList.innerHTML = '<p class="empty-state">Faça login para ver seus chamados.</p>';
+    }
 }
 
 window.addEventListener('DOMContentLoaded', initialize);

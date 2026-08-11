@@ -1,10 +1,14 @@
+import base64
+import hashlib
+import hmac
+import secrets
 from datetime import datetime
 from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
-from backend.models import Chamado, Feedback, Mensagem, StatusHistory
-from backend.schemas import FeedbackCreate, MessageCreate, StatusUpdate, TicketCreate
+from backend.models import Chamado, Feedback, Mensagem, StatusHistory, Usuario
+from backend.schemas import FeedbackCreate, MessageCreate, StatusUpdate, TicketCreate, UserLogin, UserRegister
 
 
 ALLOWED_STATUSES = {"aberto", "em andamento", "resolvido"}
@@ -16,6 +20,52 @@ def _normalize_ticket_timestamps(ticket: Chamado) -> Chamado:
     if ticket.updated_at is None:
         ticket.updated_at = ticket.created_at or datetime.utcnow()
     return ticket
+
+
+def _hash_password(password: str) -> str:
+    salt = secrets.token_bytes(16)
+    key = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, 100_000)
+    return base64.b64encode(salt + key).decode("ascii")
+
+
+def _verify_password(password: str, password_hash: str) -> bool:
+    try:
+        decoded = base64.b64decode(password_hash.encode("ascii"))
+        salt, key = decoded[:16], decoded[16:]
+    except Exception:
+        return False
+
+    candidate = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, 100_000)
+    return hmac.compare_digest(candidate, key)
+
+
+def get_user_by_username(db: Session, username: str) -> Optional[Usuario]:
+    return db.query(Usuario).filter(Usuario.username == username).first()
+
+
+def get_user_by_id(db: Session, user_id: int) -> Optional[Usuario]:
+    return db.query(Usuario).filter(Usuario.id == user_id).first()
+
+
+def create_user(db: Session, user_data: UserRegister) -> Usuario:
+    user = Usuario(
+        username=user_data.username.strip().lower(),
+        password_hash=_hash_password(user_data.password),
+        full_name=user_data.full_name.strip(),
+        birth_date=user_data.birth_date,
+        department=user_data.department.strip() if user_data.department else None,
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+def authenticate_user(db: Session, username: str, password: str) -> Optional[Usuario]:
+    user = get_user_by_username(db, username.strip().lower())
+    if not user or not _verify_password(password, user.password_hash):
+        return None
+    return user
 
 
 def get_all_tickets(db: Session) -> List[Chamado]:

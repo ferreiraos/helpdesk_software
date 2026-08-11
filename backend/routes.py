@@ -13,13 +13,19 @@ from backend.schemas import (
     TicketCreate,
     TicketDetail,
     TicketSummary,
+    UserLogin,
+    UserRead,
+    UserRegister,
 )
 from backend.services import (
     add_feedback,
     add_message,
+    authenticate_user,
     create_ticket,
+    create_user,
     get_all_tickets,
     get_ticket,
+    get_user_by_username,
     update_ticket_status,
 )
 
@@ -38,6 +44,23 @@ def get_ticket_detail(ticket_id: int, db: Session = Depends(get_db)):
     if not ticket:
         raise HTTPException(status_code=404, detail="Chamado não encontrado")
     return TicketDetail.from_orm(ticket)
+
+
+@router.post("/register", response_model=UserRead, status_code=201)
+def register_user(user_data: UserRegister, db: Session = Depends(get_db)):
+    existing_user = get_user_by_username(db, user_data.username.strip().lower())
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Nome de usuário já existe")
+    created = create_user(db, user_data)
+    return UserRead.from_orm(created)
+
+
+@router.post("/login", response_model=UserRead)
+def login_user(credentials: UserLogin, db: Session = Depends(get_db)):
+    user = authenticate_user(db, credentials.username, credentials.password)
+    if not user:
+        raise HTTPException(status_code=401, detail="Nome de usuário ou senha inválidos")
+    return UserRead.from_orm(user)
 
 
 @router.post("/chamados", response_model=TicketSummary, status_code=201)

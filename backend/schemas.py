@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, conint
@@ -21,6 +21,30 @@ class FeedbackCreate(BaseModel):
 class TicketCreate(BaseModel):
     titulo: str = Field(min_length=3, max_length=200)
     descricao: str = Field(min_length=5, max_length=2000)
+
+
+class UserRegister(BaseModel):
+    username: str = Field(min_length=3, max_length=80)
+    password: str = Field(min_length=6)
+    full_name: str = Field(min_length=3, max_length=200)
+    birth_date: date
+    department: Optional[str] = Field(default=None, max_length=100)
+
+
+class UserLogin(BaseModel):
+    username: str = Field(min_length=3, max_length=80)
+    password: str = Field(min_length=6)
+
+
+class UserRead(BaseModel):
+    id: int
+    username: str
+    full_name: str
+    birth_date: date
+    department: Optional[str] = None
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class MessageRead(BaseModel):
